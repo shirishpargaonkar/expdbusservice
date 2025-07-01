@@ -1,0 +1,22 @@
+<node>
+  <interface name="com.example.timeinfo">
+
+    <!--  Property to store current Linux time (Epoch time). -->
+    <property name="currenttime" type="t" access="read"/>
+
+    <!--  Method to fetch current Linux time (Epoch time).
+          Input can be either s or t only.
+	  s returns a formatted string, t returns Linux epoch time string.
+    -->
+    <method name="GetCurrentTime">
+      <arg name="format" type="s" direction="in"/>
+      <arg name="reply" type="s" direction="out"/>
+    </method>
+
+    <!--  signal for each top of the hour of current Linux time (Epoch time). -->
+    <signal name="onTopOfTheHour">
+      <arg name="hour" type="s"/>
+    </signal>
+
+  </interface>
+</node>

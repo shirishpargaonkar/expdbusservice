@@ -1,0 +1,77 @@
+
+git clone https://github.com/shirishpargaonkar/expdbusservice
+
+For now everything is manual.
+
+$ cd expdbusservice
+
+$ ls
+interface  LICENSE  README  service  src
+
+$ mkdir generated
+
+$ tree
+.
+├── generated
+├── interface
+│   └── timeinfo.xml
+├── LICENSE
+├── README
+├── service
+│   ├── com.example.timeinfo.service
+│   └── timeinfo.service
+└── src
+    ├── timeinfo_client.cpp
+    ├── timeinfo_client.hpp
+    ├── timeinfo_cmain.cpp
+    ├── timeinfo_server.cpp
+    ├── timeinfo_server.hpp
+    ├── timeinfo_smain.c
+    └── timeinfo_smain.cpp
+
+$ sdbus-c++-xml2cpp --adaptor=generated/timeinfo_adaptor.hpp interface/timeinfo.xml
+$ sdbus-c++-xml2cpp --proxy=generated/timeinfo_proxy.hpp interface/timeinfo.xml
+
+$ tree
+.
+├── generated
+│   ├── timeinfo_adaptor.hpp
+│   └── timeinfo_proxy.hpp
+├── interface
+│   └── timeinfo.xml
+├── LICENSE
+├── README
+├── service
+│   ├── com.example.timeinfo.service
+│   └── timeinfo.service
+└── src
+    ├── timeinfo_client.cpp
+    ├── timeinfo_client.hpp
+    ├── timeinfo_cmain.cpp
+    ├── timeinfo_server.cpp
+    ├── timeinfo_server.hpp
+    ├── timeinfo_smain.c
+    └── timeinfo_smain.cpp
+
+$ g++ -o timeinfo_server -I generated src/timeinfo_server.cpp src/timeinfo_smain.cpp -lsdbus-c++
+$ g++ -o timeinfo_client -I generated src/timeinfo_client.cpp src/timeinfo_cmain.cpp -lsdbus-c++
+
+# Start the service
+
+$ ./timeinfo_server 
+
+
+$ busctl --user tree com.example.timeinfo
+└─ /com
+  └─ /com/example
+    └─ /com/example/timeinfo
+
+# Start the client
+
+$ ./timeinfo_client 
+Current time: 1751338010
+Current time: 2025-06-30 21:46:50
+Current time: 1751338010
+Current time: 2025-06-30 21:46:50
+Signal received. hour: = 22:00
+Signal received. hour: = 23:00

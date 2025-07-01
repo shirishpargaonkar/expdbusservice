@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.example.timeinfo
+Exec=/usr/local/bin/timeinfo_server
+
