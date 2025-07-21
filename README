@@ -1,77 +1,66 @@
 
 git clone https://github.com/shirishpargaonkar/expdbusservice
 
-For now everything is manual.
+For now, it is expected that this tool exists on the system: sdbus-c++-xml2cpp
 
 $ cd expdbusservice
 
 $ ls
-interface  LICENSE  README  service  src
+CMakeLists.txt interface  LICENSE  README  service  src
 
-$ mkdir generated
+Issue following commands to build and install timeinfo_server, timeinfo_client
+and install service file named com.example.timeinfo.service.
+
 
 $ tree
-.
-├── generated
+
+├── CMakeLists.txt
+├── include
+│   ├── timeinfo_client.hpp
+│   └── timeinfo_server.hpp
 ├── interface
 │   └── timeinfo.xml
 ├── LICENSE
 ├── README
 ├── service
-│   ├── com.example.timeinfo.service
-│   └── timeinfo.service
+│   └── com.example.timeinfo.service
 └── src
     ├── timeinfo_client.cpp
-    ├── timeinfo_client.hpp
     ├── timeinfo_cmain.cpp
     ├── timeinfo_server.cpp
-    ├── timeinfo_server.hpp
-    ├── timeinfo_smain.c
     └── timeinfo_smain.cpp
 
-$ sdbus-c++-xml2cpp --adaptor=generated/timeinfo_adaptor.hpp interface/timeinfo.xml
-$ sdbus-c++-xml2cpp --proxy=generated/timeinfo_proxy.hpp interface/timeinfo.xml
+mkdir build
+cd build
+cmake ..
+make
+sudo cmake --install .
 
-$ tree
-.
-├── generated
-│   ├── timeinfo_adaptor.hpp
-│   └── timeinfo_proxy.hpp
-├── interface
-│   └── timeinfo.xml
-├── LICENSE
-├── README
-├── service
-│   ├── com.example.timeinfo.service
-│   └── timeinfo.service
-└── src
-    ├── timeinfo_client.cpp
-    ├── timeinfo_client.hpp
-    ├── timeinfo_cmain.cpp
-    ├── timeinfo_server.cpp
-    ├── timeinfo_server.hpp
-    ├── timeinfo_smain.c
-    └── timeinfo_smain.cpp
+or
 
-$ g++ -o timeinfo_server -I generated src/timeinfo_server.cpp src/timeinfo_smain.cpp -lsdbus-c++
-$ g++ -o timeinfo_client -I generated src/timeinfo_client.cpp src/timeinfo_cmain.cpp -lsdbus-c++
+mkdir build
+cd build
+cmake ..
+cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local ..
+cmake --build . --target generate_apheaders
+cmake --build . --target timeinfo_server timeinfo_client
+sudo cmake --install .
 
-# Start the service
-
-$ ./timeinfo_server 
-
+To test and verify, issue following commands:
 
 $ busctl --user tree com.example.timeinfo
 └─ /com
   └─ /com/example
     └─ /com/example/timeinfo
 
-# Start the client
+$ dbus-send --session --dest=com.example.timeinfo --type=method_call --print-reply /com/example/timeinfo com.example.timeinfo.GetCurrentTime string:"utc"
 
-$ ./timeinfo_client 
-Current time: 1751338010
-Current time: 2025-06-30 21:46:50
-Current time: 1751338010
-Current time: 2025-06-30 21:46:50
-Signal received. hour: = 22:00
-Signal received. hour: = 23:00
+method return time=1753069038.557126 sender=:1.140 -> destination=:1.142 serial=4 reply_serial=2
+   string "2025-07-21 03:37:18"
+
+$ timeinfo_client
+Current time: 1753070031
+Current time: 2025-07-21 03:53:51
+Current time: 1753070031
+Current time: 2025-07-21 03:53:51
+
